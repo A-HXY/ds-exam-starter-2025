@@ -112,6 +112,14 @@ export class ExamStack extends cdk.Stack {
       receiveMessageWaitTime: cdk.Duration.seconds(5),
     });
 
+    topic1.addSubscription(
+      new subs.SqsSubscription(queueB, {
+        filterPolicy: {
+          email: sns.SubscriptionFilter.existsFilter(false),
+        },
+      })
+    );
+
     const queueA = new sqs.Queue(this, "queueA", {
       receiveMessageWaitTime: cdk.Duration.seconds(5),
     });
