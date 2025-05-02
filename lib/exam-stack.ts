@@ -115,7 +115,9 @@ export class ExamStack extends cdk.Stack {
     topic1.addSubscription(
       new subs.SqsSubscription(queueB, {
         filterPolicy: {
-          email: sns.SubscriptionFilter.exists(false),
+          email: {
+            exists: false,
+          },
         },
       })
     );
