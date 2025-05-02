@@ -11,7 +11,7 @@ export const handler: SNSHandler = async (event) => {
     const parsed = JSON.parse(snsMsg.Message);
 
     const hasEmail = snsMsg.MessageAttributes?.email?.Value !== undefined;
-
+    
     if (!hasEmail) {
       console.log("Missing email, sending to QueueB");
       await sqs.send(
