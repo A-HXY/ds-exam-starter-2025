@@ -28,8 +28,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     if (role) {
       commandInput = {
         TableName: process.env.TABLE_NAME,
-        IndexName: "roleIx",
-        KeyConditionExpression: "movieId = :m AND begins_with(roleName, :r)",
+        KeyConditionExpression: "movieId = :m AND begins_with(role, :r)",
         ExpressionAttributeValues: {
           ":m": parseInt(movieId),
           ":r": role,
