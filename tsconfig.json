@@ -29,6 +29,9 @@
     "cdk.out"
   ],
   "include": [
-    "shared/*.json"
-  ],
+  "lambdas/**/*.ts",
+  "lib/**/*.ts",
+  "shared/**/*.ts",
+  "shared/**/*.json"
+],
 }
