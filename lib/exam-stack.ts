@@ -127,8 +127,14 @@ export class ExamStack extends cdk.Stack {
     );    
     
     topic1.addSubscription(
-      new subs.LambdaSubscription(lambdaYFn)
-    );
+      new subs.LambdaSubscription(lambdaYFn, {
+        filterPolicy: {
+          country: sns.SubscriptionFilter.stringFilter({
+            denylist: ["Ireland", "China"],
+          }),
+        },
+      })
+    );    
     
   }
 }
