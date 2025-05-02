@@ -93,6 +93,18 @@ export class ExamStack extends cdk.Stack {
       publicReadAccess: false,
     });
 
+    const topic1 = new sns.Topic(this, "Topic1", {
+      displayName: "Exam topic",
+    });
+
+    const queueA = new sqs.Queue(this, "queueA", {
+      receiveMessageWaitTime: cdk.Duration.seconds(5),
+    });
+
+    const queueB = new sqs.Queue(this, "QueueB", {
+      receiveMessageWaitTime: cdk.Duration.seconds(5),
+    });
+
     const lambdaYFn = new lambdanode.NodejsFunction(this, "LambdaYFn", {
       architecture: lambda.Architecture.ARM_64,
       runtime: lambda.Runtime.NODEJS_22_X,
@@ -104,27 +116,19 @@ export class ExamStack extends cdk.Stack {
       },
     });
 
-    const topic1 = new sns.Topic(this, "Topic1", {
-      displayName: "Exam topic",
-    });
-    
-    const queueB = new sqs.Queue(this, "QueueB", {
-      receiveMessageWaitTime: cdk.Duration.seconds(5),
+    const lambdaEmailFilterFn = new lambdanode.NodejsFunction(this, "LambdaEmailFilterFn", {
+      architecture: lambda.Architecture.ARM_64,
+      runtime: lambda.Runtime.NODEJS_22_X,
+      entry: `${__dirname}/../lambdas/lambdaEmailFilter.ts`,
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+      environment: {
+        REGION: "eu-west-1",
+        QUEUE_URL: queueB.queueUrl,
+      },
     });
 
-    topic1.addSubscription(
-      new subs.SqsSubscription(queueB, {
-        filterPolicy: {
-          email: {
-            exists: false,
-          },
-        },
-      })
-    );
-
-    const queueA = new sqs.Queue(this, "queueA", {
-      receiveMessageWaitTime: cdk.Duration.seconds(5),
-    });
+    queueB.grantSendMessages(lambdaEmailFilterFn);
 
     topic1.addSubscription(
       new subs.SqsSubscription(queueA, {
@@ -134,8 +138,8 @@ export class ExamStack extends cdk.Stack {
           }),
         },
       })
-    );    
-    
+    );
+
     topic1.addSubscription(
       new subs.LambdaSubscription(lambdaYFn, {
         filterPolicy: {
@@ -144,8 +148,10 @@ export class ExamStack extends cdk.Stack {
           }),
         },
       })
-    );    
-    
+    );
+
+    topic1.addSubscription(
+      new subs.LambdaSubscription(lambdaEmailFilterFn)
+    );
   }
 }
-  
